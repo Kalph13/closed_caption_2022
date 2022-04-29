@@ -47,8 +47,62 @@ function Transcript(obj_Episode) {
         parsing();
     }, []);
 
+    const onFind = async (output) => {
+        const findWord = await axios.get(`../search.do?q=${output}&dic=eng&search_first=Y`);
+        const $ = cheerio.load(findWord.data);
+        const $vocaList = $(".cleanword_type.kuek_type > ul > li > .txt_search");
+        const $exampleList = $(".list_example.sound_example > li");
+        
+        let vocaArray = [];
+
+        $vocaList.each((idx, node) => {
+            vocaArray.push($(node).text());
+        });
+
+        let exampleArray = [];
+
+        $exampleList.each((idx, node) => {
+            exampleArray.push({
+                txtExample: $(node).find(".txt_example").text(),
+                meanExample: $(node).find(".mean_example").text()
+            });
+        });
+
+        alert(vocaArray)
+        alert(JSON.stringify(exampleArray));
+    }
+
+    const onClick = () => {
+        /* 'range' represent a selected block in a browser */
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        const node = selection.anchorNode;
+
+        /* Set a start point of the range */
+        /* Run until the function finds the most adjacent left ' ' */
+        while (range.toString().indexOf(' ') === -1 && range.startOffset > 0) {
+            range.setStart(node, range.startOffset - 1);
+        }
+        /* When it finds the most adjacent left ' ', set the start point */
+        if (range.startOffset !== 0) range.setStart(node, range.startOffset + 1);
+        
+        /* Set an end point of the range */
+        /* The range shouldn't include ' ' or blank */
+        while (range.toString().indexOf(' ') === -1 && range.endOffset < node.length && range.toString().trim() !== '') {
+            range.setEnd(node, range.endOffset + 1);
+        }
+        /* When it finds the most adjacent right ' ', set the end point */
+        if (range.endOffset < node.length) range.setEnd(node, range.endOffset - 1);
+        
+        /* Remove special characters */
+        const word = range.toString().trim();
+        const output = word.replace(/[^a-zA-Z0-9]/g, "");
+        console.log(output);
+        onFind(output);
+    }
+
     return (
-        <div>
+        <div onClick={onClick}>
             {scriptText.map ((node) => (
                 <p key={node.key}>{node.transcript}</p>
             ))}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function onClick () {
+            /* 'range' represent a selected block in a browser */
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const node = selection.anchorNode;
+
+            /* Set a start point of the range */
+            /* Run until the function finds the most adjacent left ' ' */
+            while (range.toString().indexOf(' ') == -1 && range.startOffset > 0) {
+                range.setStart(node, range.startOffset - 1);
+            }
+            /* When it finds the most adjacent left ' ', set the start point */
+            if (range.startOffset !== 0) range.setStart(node, range.startOffset + 1);
+            
+            /* Set an end point of the range */
+            /* The range shouldn't include ' ' or blank */
+            while (range.toString().indexOf(' ') == -1 && range.endOffset < node.length && range.toString().trim() != '') {
+                range.setEnd(node, range.endOffset + 1);
+            }
+            /* When it finds the most adjacent right ' ', set the end point */
+            if (range.endOffset < node.length) range.setEnd(node, range.endOffset - 1);
+            
+            /* Remove special characters */
+            const word = range.toString().trim();
+            const output = word.replace(/[^a-zA-Z0-9]/g, "");
+        }
+    </script>
+    <title>Document</title>
+</head>
+<body onclick="onClick()">
+    <p>Son Are we being punished for something</p>
+    <p>Daughter Yeah, is this going to take a while</p>
+    <p>Marshall (Opens ring) Will you marry me</p>
+</body>
+</html>
